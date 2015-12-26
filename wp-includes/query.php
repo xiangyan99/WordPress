@@ -1517,7 +1517,7 @@ class WP_Query {
 	 *     @type string       $meta_compare            Comparison operator to test the 'meta_value'.
 	 *     @type string       $meta_key                Custom field key.
 	 *     @type array        $meta_query              An associative array of WP_Meta_Query arguments.
-	 *                                                 {@see WP_Meta_Query->queries}
+	 *                                                 {@see WP_Meta_Query}
 	 *     @type string       $meta_value              Custom field value.
 	 *     @type int          $meta_value_num          Custom field value number.
 	 *     @type int          $menu_order              The menu order of the posts.
@@ -1882,7 +1882,7 @@ class WP_Query {
 	 * @access protected
 	 * @since 3.1.0
 	 *
-	 * @param array &$q The query variables
+	 * @param array $q The query variables. Passed by reference.
 	 */
 	public function parse_tax_query( &$q ) {
 		if ( ! empty( $q['tax_query'] ) && is_array( $q['tax_query'] ) ) {
@@ -3770,6 +3770,9 @@ class WP_Query {
 	 * @access private
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param array  $q      Query variables.
+	 * @param string $limits LIMIT clauses of the query.
 	 */
 	private function set_found_posts( $q, $limits ) {
 		global $wpdb;

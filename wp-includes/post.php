@@ -110,42 +110,42 @@ function create_initial_post_types() {
 	) );
 
 	register_post_status( 'publish', array(
-		'label'       => _x( 'Published', 'post' ),
+		'label'       => _x( 'Published', 'post status' ),
 		'public'      => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop( 'Published <span class="count">(%s)</span>', 'Published <span class="count">(%s)</span>' ),
 	) );
 
 	register_post_status( 'future', array(
-		'label'       => _x( 'Scheduled', 'post' ),
+		'label'       => _x( 'Scheduled', 'post status' ),
 		'protected'   => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop('Scheduled <span class="count">(%s)</span>', 'Scheduled <span class="count">(%s)</span>' ),
 	) );
 
 	register_post_status( 'draft', array(
-		'label'       => _x( 'Draft', 'post' ),
+		'label'       => _x( 'Draft', 'post status' ),
 		'protected'   => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop( 'Draft <span class="count">(%s)</span>', 'Drafts <span class="count">(%s)</span>' ),
 	) );
 
 	register_post_status( 'pending', array(
-		'label'       => _x( 'Pending', 'post' ),
+		'label'       => _x( 'Pending', 'post status' ),
 		'protected'   => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop( 'Pending <span class="count">(%s)</span>', 'Pending <span class="count">(%s)</span>' ),
 	) );
 
 	register_post_status( 'private', array(
-		'label'       => _x( 'Private', 'post' ),
+		'label'       => _x( 'Private', 'post status' ),
 		'private'     => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop( 'Private <span class="count">(%s)</span>', 'Private <span class="count">(%s)</span>' ),
 	) );
 
 	register_post_status( 'trash', array(
-		'label'       => _x( 'Trash', 'post' ),
+		'label'       => _x( 'Trash', 'post status' ),
 		'internal'    => true,
 		'_builtin'    => true, /* internal use only. */
 		'label_count' => _n_noop( 'Trash <span class="count">(%s)</span>', 'Trash <span class="count">(%s)</span>' ),
@@ -864,7 +864,7 @@ function get_post_type_object( $post_type ) {
  *                               or 'objects'. Default 'names'.
  * @param string       $operator Optional. The logical operation to perform. 'or' means only one
  *                               element from the array needs to match; 'and' means all elements
- *                               must match. Accepts 'or' or 'and'. Default 'and'.
+ *                               must match; 'not' means no elements may match. Default 'and'.
  * @return array A list of post type names or objects.
  */
 function get_post_types( $args = array(), $output = 'names', $operator = 'and' ) {
@@ -1327,7 +1327,7 @@ function _post_type_meta_capabilities( $capabilities = null ) {
  * - not_found - Default is No posts found/No pages found.
  * - not_found_in_trash - Default is No posts found in Trash/No pages found in Trash.
  * - parent_item_colon - This string isn't used on non-hierarchical types. In hierarchical
- *                       ones the default is 'Parent Page:'.
+ * ones the default is 'Parent Page:'.
  * - all_items - String for the submenu. Default is All Posts/All Pages.
  * - archives - String for use with archives in nav menus. Default is Post Archives/Page Archives.
  * - insert_into_item - String for the media frame button. Default is Insert into post/Insert into page.
@@ -4268,8 +4268,8 @@ function get_page_hierarchy( &$pages, $page_id = 0 ) {
  * @see _page_traverse_name()
  *
  * @param int   $page_id   Page ID.
- * @param array &$children Parent-children relations, passed by reference.
- * @param array &$result   Result, passed by reference.
+ * @param array $children  Parent-children relations, passed by reference.
+ * @param array $result    Result, passed by reference.
  */
 function _page_traverse_name( $page_id, &$children, &$result ){
 	if ( isset( $children[ $page_id ] ) ){
@@ -4300,7 +4300,7 @@ function get_page_uri( $page ) {
 
 	foreach ( $page->ancestors as $parent ) {
 		$parent = get_post( $parent );
-		if ( 'publish' === $parent->post_status ) {
+		if ( $parent ) {
 			$uri = $parent->post_name . '/' . $uri;
 		}
 	}

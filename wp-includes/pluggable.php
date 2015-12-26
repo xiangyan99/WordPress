@@ -1237,7 +1237,8 @@ if ( !function_exists('wp_sanitize_redirect') ) :
  *
  * @since 2.3.0
  *
- * @return string redirect-sanitized URL
+ * @param string $location The path to redirect to.
+ * @return string Redirect-sanitized URL.
  **/
 function wp_sanitize_redirect($location) {
 	$regex = '/
@@ -1269,6 +1270,9 @@ function wp_sanitize_redirect($location) {
  * @access private
  *
  * @see wp_sanitize_redirect()
+ *
+ * @param array $matches RegEx matches against the redirect location.
+ * @return string URL-encoded version of the first RegEx match.
  */
 function _wp_sanitize_utf8_in_redirect( $matches ) {
 	return urlencode( $matches[0] );
@@ -1288,6 +1292,9 @@ if ( !function_exists('wp_safe_redirect') ) :
  * but only used in a few places.
  *
  * @since 2.3.0
+ *
+ * @param string $location The path to redirect to.
+ * @param int    $status   Status code to use.
  */
 function wp_safe_redirect($location, $status = 302) {
 
@@ -2017,7 +2024,8 @@ if ( !function_exists('wp_hash') ) :
  *
  * @since 2.0.3
  *
- * @param string $data Plain text to hash
+ * @param string $data   Plain text to hash
+ * @param string $scheme Authentication scheme (auth, secure_auth, logged_in, nonce)
  * @return string Hash of $data
  */
 function wp_hash($data, $scheme = 'auth') {
@@ -2072,8 +2080,9 @@ if ( !function_exists('wp_check_password') ) :
  *	against the $hash + $password
  * @uses PasswordHash::CheckPassword
  *
- * @param string $password Plaintext user's password
- * @param string $hash     Hash of the user's password to check against.
+ * @param string     $password Plaintext user's password
+ * @param string     $hash     Hash of the user's password to check against.
+ * @param string|int $user_id  Optional. User ID.
  * @return bool False, if the $password does not match the hashed password
  */
 function wp_check_password($password, $hash, $user_id = '') {
@@ -2093,10 +2102,10 @@ function wp_check_password($password, $hash, $user_id = '') {
 		 *
 		 * @since 2.5.0
 		 *
-		 * @param bool   $check    Whether the passwords match.
-		 * @param string $password The plaintext password.
-		 * @param string $hash     The hashed password.
-		 * @param int    $user_id  User ID.
+		 * @param bool       $check    Whether the passwords match.
+		 * @param string     $password The plaintext password.
+		 * @param string     $hash     The hashed password.
+		 * @param string|int $user_id  User ID. Can be empty.
 		 */
 		return apply_filters( 'check_password', $check, $password, $hash, $user_id );
 	}

@@ -216,7 +216,7 @@ function wptexturize( $text, $reset = false ) {
 
 	// Look for shortcodes and HTML elements.
 
-	preg_match_all( '@\[/?([^<>&/\[\]\x00-\x20]++)@', $text, $matches );
+	preg_match_all( '@\[/?([^<>&/\[\]\x00-\x20=]++)@', $text, $matches );
 	$tagnames = array_intersect( array_keys( $shortcode_tags ), $matches[1] );
 	$found_shortcodes = ! empty( $tagnames );
 	$shortcode_regex = $found_shortcodes ? _get_wptexturize_shortcode_regex( $tagnames ) : '';
@@ -233,6 +233,10 @@ function wptexturize( $text, $reset = false ) {
 				continue;
 			} else {
 				// This is an HTML element delimiter.
+
+				// Replace each & with &#038; unless it already looks like an entity.
+				$curl = preg_replace( '/&(?!#(?:\d+|x[a-f0-9]+);|[a-z1-4]{1,8};)/i', '&#038;', $curl );
+
 				_wptexturize_pushpop_element( $curl, $no_texturize_tags_stack, $no_texturize_tags );
 			}
 
@@ -3268,7 +3272,11 @@ function ent2ncr( $text ) {
  *
  * @since 4.3.0
  *
- * @param string $text The text to be formatted.
+ * @see _WP_Editors::editor()
+ *
+ * @param string $text           The text to be formatted.
+ * @param string $default_editor The default editor for the current user.
+ *                               It is usually either 'html' or 'tinymce'.
  * @return string The formatted text after filter is applied.
  */
 function format_for_editor( $text, $default_editor = null ) {
@@ -3281,7 +3289,9 @@ function format_for_editor( $text, $default_editor = null ) {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string $text The formatted text.
+	 * @param string $text           The formatted text.
+	 * @param string $default_editor The default editor for the current user.
+	 *                               It is usually either 'html' or 'tinymce'.
 	 */
 	return apply_filters( 'format_for_editor', $text, $default_editor );
 }
@@ -3874,14 +3884,20 @@ function sanitize_option( $option, $value ) {
  * @return The value with the callback applied to all non-arrays and non-objects inside it.
  */
 function map_deep( $value, $callback ) {
-	if ( is_array( $value ) || is_object( $value ) ) {
-		foreach ( $value as &$item ) {
-			$item = map_deep( $item, $callback );
+	if ( is_array( $value ) ) {
+		foreach ( $value as $index => $item ) {
+			$value[ $index ] = map_deep( $item, $callback );
 		}
-		return $value;
+	} elseif ( is_object( $value ) ) {
+		$object_vars = get_object_vars( $value );
+		foreach ( $object_vars as $property_name => $property_value ) {
+			$value->$property_name = map_deep( $property_value, $callback );
+		}
 	} else {
-		return call_user_func( $callback, $value );
+		$value = call_user_func( $callback, $value );
 	}
+
+	return $value;
 }
 
 /**

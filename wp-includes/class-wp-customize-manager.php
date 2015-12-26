@@ -1855,7 +1855,11 @@ final class WP_Customize_Manager {
 
 		$this->add_control( new WP_Customize_Site_Icon_Control( $this, 'site_icon', array(
 			'label'       => __( 'Site Icon' ),
-			'description' => __( 'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least 512px wide and tall.' ),
+			'description' => sprintf(
+				/* translators: %s: site icon size in pixels */
+				__( 'The Site Icon is used as a browser and app icon for your site. Icons must be square, and at least %s pixels wide and tall.' ),
+				'<strong>512</strong>'
+			),
 			'section'     => 'title_tagline',
 			'priority'    => 60,
 			'height'      => 512,
@@ -1881,7 +1885,7 @@ final class WP_Customize_Manager {
 		// With custom value
 		$this->add_control( 'display_header_text', array(
 			'settings' => 'header_textcolor',
-			'label'    => __( 'Display Header Text' ),
+			'label'    => __( 'Display Site Title and Tagline' ),
 			'section'  => 'title_tagline',
 			'type'     => 'checkbox',
 			'priority' => 40,

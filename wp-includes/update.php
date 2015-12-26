@@ -339,7 +339,6 @@ function wp_update_plugins( $extra_stats = array() ) {
  * installing.
  *
  * @since 2.7.0
- * @uses $wp_version Used to notify the WordPress version.
  *
  * @param array $extra_stats Extra statistics to report to the WordPress.org API.
  */
@@ -582,6 +581,10 @@ function wp_get_update_data() {
 }
 
 /**
+ * Determines whether core should be updated.
+ *
+ * @since 2.8.0
+ *
  * @global string $wp_version
  */
 function _maybe_update_core() {

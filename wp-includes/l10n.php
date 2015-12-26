@@ -118,10 +118,11 @@ function translate( $text, $domain = 'default' ) {
  */
 function before_last_bar( $string ) {
 	$last_bar = strrpos( $string, '|' );
-	if ( false === $last_bar )
+	if ( false === $last_bar ) {
 		return $string;
-	else
+	} else {
 		return substr( $string, 0, $last_bar );
+	}
 }
 
 /**
@@ -444,6 +445,7 @@ function _n_noop( $singular, $plural, $domain = null ) {
  *
  * @param string $singular Singular form to be localized.
  * @param string $plural   Plural form to be localized.
+ * @param string $context  Context information for the translators.
  * @param string $domain   Optional. Text domain. Unique identifier for retrieving translated strings.
  *                         Default null.
  * @return array {

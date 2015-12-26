@@ -736,7 +736,7 @@ function get_comment_link( $comment = null, $args = array() ) {
 		}
 	}
 
-	if ( $cpage ) {
+	if ( $cpage && get_option( 'page_comments' ) ) {
 		if ( $wp_rewrite->using_permalinks() ) {
 			if ( $cpage ) {
 				$link = trailingslashit( $link ) . $wp_rewrite->comments_pagination_base . '-' . $cpage;
@@ -1229,7 +1229,7 @@ function wp_comment_form_unfiltered_html_nonce() {
  * default theme. If either does not exist, then the WordPress process will be
  * halted. It is advised for that reason, that the default theme is not deleted.
  *
- * @uses $withcomments Will not try to get the comments if the post has none.
+ * Will not try to get the comments if the post has none.
  *
  * @since 1.5.0
  *
@@ -1242,6 +1242,7 @@ function wp_comment_form_unfiltered_html_nonce() {
  * @global int        $user_ID
  * @global string     $user_identity
  * @global bool       $overridden_cpage
+ * @global bool       $withcomments 
  *
  * @param string $file              Optional. The file to load. Default '/comments.php'.
  * @param bool   $separate_comments Optional. Whether to separate the comments by comment type.
@@ -1313,12 +1314,19 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 		} else {
 			// If fetching the first page of 'newest', we need a top-level comment count.
 			$top_level_query = new WP_Comment_Query();
-			$top_level_count = $top_level_query->query( array(
+			$top_level_args  = array(
 				'count'   => true,
 				'orderby' => false,
 				'post_id' => $post->ID,
 				'parent'  => 0,
-			) );
+				'status'  => 'approve',
+			);
+
+			if ( isset( $comment_args['include_unapproved'] ) ) {
+				$top_level_args['include_unapproved'] = $comment_args['include_unapproved'];
+			}
+
+			$top_level_count = $top_level_query->query( $top_level_args );
 
 			$comment_args['offset'] = ( ceil( $top_level_count / $per_page ) - 1 ) * $per_page;
 		}
@@ -1330,11 +1338,16 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 	// Trees must be flattened before they're passed to the walker.
 	$comments_flat = array();
 	foreach ( $_comments as $_comment ) {
-		$comments_flat = array_merge( $comments_flat, array( $_comment ), $_comment->get_children( array(
+		$comments_flat[]  = $_comment;
+		$comment_children = $_comment->get_children( array(
 			'format' => 'flat',
 			'status' => $comment_args['status'],
 			'orderby' => $comment_args['orderby']
-		) ) );
+		) );
+
+		foreach ( $comment_children as $comment_child ) {
+			$comments_flat[] = $comment_child;
+		}
 	}
 
 	/**
@@ -2169,7 +2182,7 @@ function comment_form( $args = array(), $post_id = null ) {
 					$comment_fields = array( 'comment' => $args['comment_field'] ) + (array) $args['fields'];
 
 					/**
-					 * Filter the comment form fields.
+					 * Filter the comment form fields, including the textarea.
 					 *
 					 * @since 4.4.0
 					 *
